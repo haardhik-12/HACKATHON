@@ -1,153 +1,163 @@
 """
-session_memory.py — In-memory session store with emotion trend analysis.
+session_memory.py — Persistent Session Storage using MongoDB.
 
-Stores conversation histories and emotion records per session_id.
-In production, replace the in-memory dict with Redis or a database.
+Responsibilities:
+  - Manages session lifecycle (Create, Load, Update, Delete).
+  - Stores conversation history and emotional trend snapshots in MongoDB.
+  - Ensures thread-safe access to persistent data.
 """
 
-import threading
-from datetime import datetime, timezone
-from typing import Dict, Optional, List
-from app.state import MentalHealthState, EmotionRecord
+import time
+from typing import Dict, List, Optional, Any
+from pymongo import MongoClient
+from pymongo.collection import Collection
 
+from app.config import config
+from app.state import MentalHealthState
+from utils.redactor import redact_message_history
 
-# Thread-safe in-memory session store
-_store: Dict[str, MentalHealthState] = {}
-_lock = threading.Lock()
+# ── MongoDB Initialization ───────────────────────────────────────────────────
 
-# Risk level severity map for trend analysis
-_RISK_SEVERITY: Dict[str, int] = {
-    "low": 1,
-    "moderate": 2,
-    "high": 3,
-    "critical": 4,
-}
+# Singleton MongoDB Client
+_mongo_client: Optional[MongoClient] = None
+_sessions_collection: Optional[Collection] = None
 
+def get_collection() -> Collection:
+    """Returns the MongoDB collection for sessions, initializing if needed."""
+    global _mongo_client, _sessions_collection
+    
+    if _sessions_collection is None:
+        if not config.MONGODB_URI:
+            # Fallback to local dict for development if no URI provided
+            # (Though in your case, we have the URI)
+            print("[SessionMemory] ⚠️ MONGODB_URI not found. Persistence is DISABLED.")
+            raise ValueError("MONGODB_URI is required for persistent memory.")
+            
+        _mongo_client = MongoClient(config.MONGODB_URI)
+        db = _mongo_client[config.MONGODB_DB_NAME]
+        _sessions_collection = db["sessions"]
+        
+        # Ensure index on session_id for fast lookups
+        _sessions_collection.create_index("session_id", unique=True)
+        print(f"[SessionMemory] ✅ Connected to MongoDB: {config.MONGODB_DB_NAME}.sessions")
+        
+    return _sessions_collection
 
-def load_session(session_id: str) -> Optional[MentalHealthState]:
-    """
-    Retrieve a session's state by session_id.
-    Returns None if session doesn't exist.
-    """
-    with _lock:
-        return _store.get(session_id)
+# ── Memory Operations ────────────────────────────────────────────────────────
 
-
-def save_session(state: MentalHealthState) -> None:
-    """Persist the current state back to memory."""
-    with _lock:
-        _store[state["session_id"]] = state
-
-
-def create_session(session_id: str, country: str = "US", consent: bool = False) -> MentalHealthState:
-    """
-    Initialize a fresh session state.
-    Called when a new session_id arrives for the first time.
-    """
-    initial_state: MentalHealthState = {
+def create_session(session_id: str, **kwargs) -> Dict[str, Any]:
+    """Initialize a new session entry in MongoDB with optional metadata."""
+    coll = get_collection()
+    
+    new_session = {
         "session_id": session_id,
-        "consent_given": consent,
-        "user_message": "",
-        "country": country,
         "conversation_history": [],
-        "emotion": "neutral",
-        "risk_level": "low",
-        "confidence": 0.0,
-        "routing_path": "support",
-        "selected_tools": [],
-        "support_response": "",
-        "crisis_response": "",
-        "final_response": "",
         "emotion_history": [],
         "trend_warning": None,
+        "last_updated": time.time()
     }
-    save_session(initial_state)
-    return initial_state
+    
+    # Merge any metadata (country, consent_given, etc.)
+    new_session.update(kwargs)
+    
+    # Upsert to handle potential re-initialization
+    coll.update_one(
+        {"session_id": session_id},
+        {"$set": new_session},
+        upsert=True
+    )
+    return new_session
 
+def load_session(session_id: str) -> Optional[Dict[str, Any]]:
+    """Retrieve session data from MongoDB."""
+    coll = get_collection()
+    return coll.find_one({"session_id": session_id}, {"_id": 0})
+
+def save_session(state: Dict[str, Any]):
+    """
+    Update an existing session in MongoDB using the current state dictionary.
+    """
+    session_id = state.get("session_id")
+    if not session_id:
+        return
+
+    coll = get_collection()
+    
+    # Redact conversation history before storing
+    history = state.get("conversation_history", [])
+    redacted_history = redact_message_history(history)
+
+    # We only want to persist key fields, not the entire transient state
+    persist_payload = {
+        "conversation_history": redacted_history,
+        "emotion_history": state.get("emotion_history", []),
+        "trend_warning": state.get("trend_warning"),
+        "last_updated": time.time()
+    }
+    
+    coll.update_one(
+        {"session_id": session_id},
+        {"$set": persist_payload},
+        upsert=False
+    )
+    print(f"[SessionMemory] 💾 Saved session {session_id} to MongoDB (PII Redacted).")
+
+def delete_session(session_id: str) -> bool:
+    """Permanently delete a session (Privacy/GDPR)."""
+    coll = get_collection()
+    result = coll.delete_one({"session_id": session_id})
+    return result.deleted_count > 0
+
+# ── Emotion Tracking ───────────────────────────────────────────────────────
+
+def record_emotion_snapshot(session_id: str, emotion: str, risk_level: str, confidence: float):
+    """
+    Append a new emotional snapshot to the session's history in MongoDB.
+    Snapshots are used by the ResponseGenerator to detect trends.
+    """
+    coll = get_collection()
+    
+    snapshot = {
+        "timestamp": time.time(),
+        "emotion": emotion,
+        "risk_level": risk_level,
+        "confidence": confidence
+    }
+    
+    coll.update_one(
+        {"session_id": session_id},
+        {"$push": {"emotion_history": snapshot}}
+    )
 
 def record_emotion(state: MentalHealthState) -> MentalHealthState:
     """
-    Append the current emotion/risk snapshot to emotion_history (only if consent given).
-    Then run trend detection and attach a warning if distress is worsening.
+    Compatibility wrapper: extracts data from state and records an emotion snapshot.
+    Only records if consent_given is True.
     """
     if not state.get("consent_given", False):
         return state
 
-    record: EmotionRecord = {
-        "timestamp": datetime.now(timezone.utc).isoformat(),
-        "emotion": state["emotion"],
-        "risk_level": state["risk_level"],
-        "confidence": state["confidence"],
-    }
+    session_id = state.get("session_id")
+    emotion = state.get("emotion", "neutral")
+    risk_level = state.get("risk_level", "low")
+    confidence = state.get("confidence", 0.0)
 
-    history = list(state.get("emotion_history", []))
-    history.append(record)
-    state["emotion_history"] = history
-
-    # Run trend analysis
-    state["trend_warning"] = detect_worsening_trend(history)
-
+    if session_id:
+        record_emotion_snapshot(session_id, emotion, risk_level, confidence)
+        
+        # Also update the local state's emotion_history for current turn logic
+        history = list(state.get("emotion_history", []))
+        history.append({
+            "timestamp": time.time(),
+            "emotion": emotion,
+            "risk_level": risk_level,
+            "confidence": confidence
+        })
+        state["emotion_history"] = history
+    
     return state
 
-
-def detect_worsening_trend(history: List[EmotionRecord], window: int = 5) -> Optional[str]:
-    """
-    Analyze the last `window` emotion records for a worsening pattern.
-
-    Returns a warning string if distress is escalating, otherwise None.
-
-    Logic:
-    - Take the most recent `window` entries (or all if fewer).
-    - Compare average severity score of the first half vs second half.
-    - If the second half average is meaningfully higher → worsening trend.
-    """
-    if len(history) < 3:
-        return None  # Not enough data
-
-    recent = history[-window:]
-    scores = [_RISK_SEVERITY.get(r["risk_level"], 1) for r in recent]
-
-    mid = len(scores) // 2
-    first_half_avg = sum(scores[:mid]) / max(len(scores[:mid]), 1)
-    second_half_avg = sum(scores[mid:]) / max(len(scores[mid:]), 1)
-
-    # Worsening if the more recent half is significantly higher
-    if second_half_avg - first_half_avg >= 1.0:
-        return (
-            "⚠️ I've noticed that your distress level has been increasing over our recent conversations. "
-            "It may be a good time to reach out to a mental health professional for additional support."
-        )
-
-    # Also warn if sustained moderate/high risk
-    if all(s >= 2 for s in scores[-3:]):
-        return (
-            "I've noticed you've been experiencing ongoing emotional difficulty. "
-            "Speaking with a counselor or therapist could provide more personalized support."
-        )
-
-    return None
-
-
-def delete_session(session_id: str) -> bool:
-    """
-    Remove a session from the store (user privacy / right to delete).
-    Returns True if session existed, False otherwise.
-    """
-    with _lock:
-        existed = session_id in _store
-        _store.pop(session_id, None)
-        return existed
-
-
-def get_emotion_history(session_id: str) -> List[EmotionRecord]:
-    """Return just the emotion history list for a given session."""
+def get_emotion_history(session_id: str) -> List[Dict[str, Any]]:
+    """Return the list of emotion snapshots for a session."""
     session = load_session(session_id)
-    if session is None:
-        return []
-    return session.get("emotion_history", [])
-
-
-def list_sessions() -> List[str]:
-    """Return all active session IDs (for admin/debug use)."""
-    with _lock:
-        return list(_store.keys())
+    return session.get("emotion_history", []) if session else []

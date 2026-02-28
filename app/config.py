@@ -23,6 +23,10 @@ class Config:
     DEFAULT_CRISIS_COUNTRY: str = os.getenv("DEFAULT_CRISIS_COUNTRY", "US")
     SESSION_TIMEOUT: int = int(os.getenv("SESSION_TIMEOUT", "1800"))
 
+    # MongoDB persistence
+    MONGODB_URI: str = os.getenv("MONGODB_URI", "")
+    MONGODB_DB_NAME: str = os.getenv("MONGODB_DB_NAME", "mental_health_db")
+
     # App
     APP_SECRET_KEY: str = os.getenv("APP_SECRET_KEY", "change-me-in-production")
     DEBUG: bool = os.getenv("DEBUG", "false").lower() == "true"
