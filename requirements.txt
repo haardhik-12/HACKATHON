@@ -25,3 +25,7 @@ aiofiles>=23.2.1
 
 # Utilities
 python-json-logger>=2.0.7
+
+# Database (MongoDB)
+motor>=3.3.2
+pymongo>=4.6.1

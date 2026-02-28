@@ -15,7 +15,7 @@ from langchain_core.messages import SystemMessage, HumanMessage
 from app.state import MentalHealthState
 from utils.llm_factory import get_llm
 from utils.prompt_templates import DISTRESS_ANALYSIS_PROMPT
-from memory.session_memory import record_emotion
+from memory.session_memory import record_emotion_sync
 
 
 # Fallback if LLM returns malformed JSON
@@ -81,7 +81,7 @@ def _parse_llm_output(raw: str) -> dict:
     }
 
 
-def distress_analysis_agent(state: MentalHealthState) -> MentalHealthState:
+async def distress_analysis_agent(state: MentalHealthState) -> MentalHealthState:
     """
     LangGraph node: Distress Analysis Agent.
 
@@ -104,7 +104,7 @@ def distress_analysis_agent(state: MentalHealthState) -> MentalHealthState:
             SystemMessage(content="You are a mental health distress analysis assistant. Always respond with valid JSON only."),
             HumanMessage(content=prompt),
         ]
-        response = llm.invoke(messages)
+        response = await llm.ainvoke(messages)
         raw_output = response.content if hasattr(response, "content") else str(response)
     except Exception as e:
         print(f"[DistressAnalysisAgent] LLM error: {e}. Using fallback.")
@@ -122,6 +122,6 @@ def distress_analysis_agent(state: MentalHealthState) -> MentalHealthState:
     state["confidence"] = analysis["confidence"]
 
     # Record emotion snapshot (only if consent given)
-    state = record_emotion(state)
+    state = record_emotion_sync(state)
 
     return state

@@ -19,7 +19,7 @@ from utils.safety_filter import sanitize_response, enforce_disclaimer
 from memory.session_memory import save_session
 
 
-def response_generator_agent(state: MentalHealthState) -> MentalHealthState:
+async def response_generator_agent(state: MentalHealthState) -> MentalHealthState:
     """
     LangGraph node: Response Generator Agent.
 
@@ -88,6 +88,6 @@ def response_generator_agent(state: MentalHealthState) -> MentalHealthState:
 
     # ── Persist session ───────────────────────────────────────────────────────
     state["final_response"] = formatted
-    save_session(state)
+    await save_session(state)
 
     return state

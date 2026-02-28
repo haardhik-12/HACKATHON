@@ -15,7 +15,7 @@ from utils.prompt_templates import GENERAL_CONVERSATION_PROMPT
 from utils.safety_filter import sanitize_response
 
 
-def general_conversation_agent(state: MentalHealthState) -> MentalHealthState:
+async def general_conversation_agent(state: MentalHealthState) -> MentalHealthState:
     """
     LangGraph node: General Conversation Agent.
 
@@ -38,7 +38,7 @@ def general_conversation_agent(state: MentalHealthState) -> MentalHealthState:
             )),
             HumanMessage(content=prompt),
         ]
-        response = llm.invoke(messages)
+        response = await llm.ainvoke(messages)
         raw_response = response.content if hasattr(response, "content") else str(response)
     except Exception as e:
         print(f"[GeneralConvAgent] LLM error: {e}. Using fallback.")

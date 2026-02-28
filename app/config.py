@@ -26,6 +26,10 @@ class Config:
     # App
     APP_SECRET_KEY: str = os.getenv("APP_SECRET_KEY", "change-me-in-production")
     DEBUG: bool = os.getenv("DEBUG", "false").lower() == "true"
+    
+    # Database
+    MONGODB_URI: str = os.getenv("MONGODB_URI", "")
+    MONGODB_DB_NAME: str = os.getenv("MONGODB_DB_NAME", "hackathon_db")
 
     # File paths (relative to project root)
     DATA_DIR: str = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")

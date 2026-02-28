@@ -1,19 +1,13 @@
 """
-session_memory.py — In-memory session store with emotion trend analysis.
+session_memory.py — MongoDB-backed session store with emotion trend analysis.
 
 Stores conversation histories and emotion records per session_id.
-In production, replace the in-memory dict with Redis or a database.
 """
 
-import threading
 from datetime import datetime, timezone
 from typing import Dict, Optional, List
 from app.state import MentalHealthState, EmotionRecord
-
-
-# Thread-safe in-memory session store
-_store: Dict[str, MentalHealthState] = {}
-_lock = threading.Lock()
+from app.database import get_db
 
 # Risk level severity map for trend analysis
 _RISK_SEVERITY: Dict[str, int] = {
@@ -23,23 +17,34 @@ _RISK_SEVERITY: Dict[str, int] = {
     "critical": 4,
 }
 
+# Helper to get the MongoDB collection
+def _get_collection():
+    db = get_db()
+    return db["sessions"]
 
-def load_session(session_id: str) -> Optional[MentalHealthState]:
+async def load_session(session_id: str) -> Optional[MentalHealthState]:
     """
     Retrieve a session's state by session_id.
     Returns None if session doesn't exist.
     """
-    with _lock:
-        return _store.get(session_id)
+    collection = _get_collection()
+    session = await collection.find_one({"session_id": session_id})
+    if session:
+        # Remove the MongoDB internal _id field before returning
+        session.pop("_id", None)
+        return session
+    return None
 
+async def save_session(state: MentalHealthState) -> None:
+    """Persist the current state to MongoDB."""
+    collection = _get_collection()
+    await collection.replace_one(
+        {"session_id": state["session_id"]}, 
+        state, 
+        upsert=True
+    )
 
-def save_session(state: MentalHealthState) -> None:
-    """Persist the current state back to memory."""
-    with _lock:
-        _store[state["session_id"]] = state
-
-
-def create_session(session_id: str, country: str = "US", consent: bool = False) -> MentalHealthState:
+async def create_session(session_id: str, country: str = "US", consent: bool = False) -> MentalHealthState:
     """
     Initialize a fresh session state.
     Called when a new session_id arrives for the first time.
@@ -61,14 +66,14 @@ def create_session(session_id: str, country: str = "US", consent: bool = False) 
         "emotion_history": [],
         "trend_warning": None,
     }
-    save_session(initial_state)
+    await save_session(initial_state)
     return initial_state
 
-
-def record_emotion(state: MentalHealthState) -> MentalHealthState:
+def record_emotion_sync(state: MentalHealthState) -> MentalHealthState:
     """
     Append the current emotion/risk snapshot to emotion_history (only if consent given).
     Then run trend detection and attach a warning if distress is worsening.
+    Note: This modifies the state dictionary in place.
     """
     if not state.get("consent_given", False):
         return state
@@ -89,17 +94,9 @@ def record_emotion(state: MentalHealthState) -> MentalHealthState:
 
     return state
 
-
 def detect_worsening_trend(history: List[EmotionRecord], window: int = 5) -> Optional[str]:
     """
     Analyze the last `window` emotion records for a worsening pattern.
-
-    Returns a warning string if distress is escalating, otherwise None.
-
-    Logic:
-    - Take the most recent `window` entries (or all if fewer).
-    - Compare average severity score of the first half vs second half.
-    - If the second half average is meaningfully higher → worsening trend.
     """
     if len(history) < 3:
         return None  # Not enough data
@@ -127,27 +124,18 @@ def detect_worsening_trend(history: List[EmotionRecord], window: int = 5) -> Opt
 
     return None
 
-
-def delete_session(session_id: str) -> bool:
+async def delete_session(session_id: str) -> bool:
     """
     Remove a session from the store (user privacy / right to delete).
     Returns True if session existed, False otherwise.
     """
-    with _lock:
-        existed = session_id in _store
-        _store.pop(session_id, None)
-        return existed
+    collection = _get_collection()
+    result = await collection.delete_one({"session_id": session_id})
+    return result.deleted_count > 0
 
-
-def get_emotion_history(session_id: str) -> List[EmotionRecord]:
+async def get_emotion_history(session_id: str) -> List[EmotionRecord]:
     """Return just the emotion history list for a given session."""
-    session = load_session(session_id)
+    session = await load_session(session_id)
     if session is None:
         return []
     return session.get("emotion_history", [])
-
-
-def list_sessions() -> List[str]:
-    """Return all active session IDs (for admin/debug use)."""
-    with _lock:
-        return list(_store.keys())

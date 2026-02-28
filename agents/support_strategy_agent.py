@@ -57,7 +57,7 @@ def _extract_tool_ids(response: str, library: dict) -> list:
     return mentioned if mentioned else ["grounding"]  # Default fallback
 
 
-def support_strategy_agent(state: MentalHealthState) -> MentalHealthState:
+async def support_strategy_agent(state: MentalHealthState) -> MentalHealthState:
     """
     LangGraph node: Support Strategy Agent.
 
@@ -87,7 +87,9 @@ def support_strategy_agent(state: MentalHealthState) -> MentalHealthState:
             )),
             HumanMessage(content=prompt),
         ]
-        response = llm.invoke(messages)
+        # In this simplistic setup, invoke is still synchronous under the hood for some models,
+        # but ainvoke is safer if the model supports it natively.
+        response = await llm.ainvoke(messages)
         raw_response = response.content if hasattr(response, "content") else str(response)
     except Exception as e:
         print(f"[SupportStrategyAgent] LLM error: {e}. Using fallback response.")

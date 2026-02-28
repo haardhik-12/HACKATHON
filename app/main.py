@@ -11,8 +11,10 @@ Provides endpoints for:
 from fastapi import FastAPI, HTTPException, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 import uuid
+from contextlib import asynccontextmanager
 
 from app.config import config
+from app.database import connect_to_mongo, close_mongo_connection
 from app.schemas import (
     ChatRequest, ChatResponse, HealthResponse,
     EmotionHistoryResponse, SessionDeleteResponse, DistressAnalysis
@@ -25,10 +27,19 @@ from memory.session_memory import (
 
 # ── App Initialization ───────────────────────────────────────────────────────
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: connect to MongoDB
+    await connect_to_mongo()
+    yield
+    # Shutdown: close MongoDB connection
+    await close_mongo_connection()
+
 app = FastAPI(
     title="AI Mental Health Support & Crisis Coordination System",
     description="A multi-agent production-ready system for empathetic support and crisis escalation.",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 # Enable CORS for hackathon frontend integration
@@ -77,9 +88,9 @@ async def chat_endpoint(request: ChatRequest):
             "trend_warning": None,
         }
 
-        # Invoke the LangGraph
+        # Invoke the LangGraph (USING async ainvoke because our nodes are now async for MongoDB)
         # The graph handles loading existing session state, analysis, routing, and response generation
-        final_state = mental_health_graph.invoke(initial_input)
+        final_state = await mental_health_graph.ainvoke(initial_input)
 
         # Build response
         return {

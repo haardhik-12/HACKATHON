@@ -13,7 +13,7 @@ from memory.session_memory import load_session, create_session, save_session
 from app.state import MentalHealthState
 
 
-def conversation_agent(state: MentalHealthState) -> MentalHealthState:
+async def conversation_agent(state: MentalHealthState) -> MentalHealthState:
     """
     LangGraph node: Conversation Agent.
 
@@ -26,11 +26,11 @@ def conversation_agent(state: MentalHealthState) -> MentalHealthState:
     consent = state.get("consent_given", False)
 
     # ── Load or create session ────────────────────────────────────────────────
-    existing_session = load_session(session_id)
+    existing_session = await load_session(session_id)
 
     if existing_session is None:
         # First time this session — initialize fresh state
-        session_state = create_session(
+        session_state = await create_session(
             session_id=session_id,
             country=country,
             consent=consent,
@@ -55,7 +55,7 @@ def conversation_agent(state: MentalHealthState) -> MentalHealthState:
     session_state["country"] = country
 
     # ── Persist updated session ──────────────────────────────────────────────
-    save_session(session_state)
+    await save_session(session_state)
 
     # ── Return merged state for next agent ────────────────────────────────────
     return session_state

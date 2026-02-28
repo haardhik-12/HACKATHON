@@ -77,7 +77,7 @@ def _hardcoded_crisis_fallback(country_code: str, emergency: str) -> str:
     )
 
 
-def crisis_escalation_agent(state: MentalHealthState) -> MentalHealthState:
+async def crisis_escalation_agent(state: MentalHealthState) -> MentalHealthState:
     """
     LangGraph node: Crisis Escalation Agent.
 
@@ -112,7 +112,7 @@ def crisis_escalation_agent(state: MentalHealthState) -> MentalHealthState:
             )),
             HumanMessage(content=prompt),
         ]
-        response = llm.invoke(messages)
+        response = await llm.ainvoke(messages)
         raw_response = response.content if hasattr(response, "content") else str(response)
 
         # Critical safety check — if LLM somehow returns harmful content, use fallback
