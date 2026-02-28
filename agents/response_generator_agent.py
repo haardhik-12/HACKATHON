@@ -15,6 +15,7 @@ from langchain_core.messages import SystemMessage, HumanMessage
 from app.state import MentalHealthState
 from utils.llm_factory import get_llm
 from utils.prompt_templates import RESPONSE_GENERATOR_PROMPT, STANDARD_DISCLAIMER
+from prompts import RESPONSE_GENERATOR_AGENT_SYSTEM_PROMPT
 from utils.safety_filter import sanitize_response, enforce_disclaimer
 from memory.session_memory import save_session
 
@@ -44,6 +45,15 @@ def response_generator_agent(state: MentalHealthState) -> MentalHealthState:
 
     trend_warning = state.get("trend_warning") or "None"
 
+    # ── Build context for contextual disclaimer ────────────────────────────────
+    disclaimer_context = {
+        'is_first_message': len(state.get("conversation_history", [])) <= 1,
+        'mentions_medical': any(keyword in agent_response.lower() for keyword in 
+                              ['medication', 'prescribe', 'diagnosis', 'doctor', 'psychiatrist', 'therapy']),
+        'is_crisis': routing_path == "crisis",
+        'routing_path': routing_path
+    }
+    
     # ── Optionally use LLM to improve naturalness (skip for mock to avoid redundant call) ──
     llm = get_llm(temperature=0.4)
     llm_type = getattr(llm, "_llm_type", "") or getattr(llm, "model_name", "")
@@ -57,11 +67,7 @@ def response_generator_agent(state: MentalHealthState) -> MentalHealthState:
         )
         try:
             messages = [
-                SystemMessage(content=(
-                    "You are a final response formatter for a mental wellness support system. "
-                    "Format the provided response to be natural, empathetic, and safe. "
-                    "Never alter the substance or add new advice."
-                )),
+                SystemMessage(content=RESPONSE_GENERATOR_AGENT_SYSTEM_PROMPT),
                 HumanMessage(content=prompt),
             ]
             response = llm.invoke(messages)
@@ -75,8 +81,9 @@ def response_generator_agent(state: MentalHealthState) -> MentalHealthState:
         if trend_warning and trend_warning != "None":
             formatted += f"\n\n{trend_warning}"
 
-    # ── Final safety passes ───────────────────────────────────────────────────
+    # ── Final safety passes without automatic disclaimer ─────────────────────
     formatted = sanitize_response(formatted)
+    # No contextual disclaimer enforcement - agents handle it contextually
 
     print(f"[ResponseGeneratorAgent] → Path: {routing_path.upper()} | "
           f"Response length: {len(formatted)} chars")

@@ -18,6 +18,7 @@ from app.state import MentalHealthState
 from app.config import config
 from utils.llm_factory import get_llm
 from utils.prompt_templates import CRISIS_ESCALATION_PROMPT
+from prompts import CRISIS_ESCALATION_AGENT_SYSTEM_PROMPT
 from utils.safety_filter import sanitize_response, contains_harmful_content
 
 
@@ -104,12 +105,7 @@ def crisis_escalation_agent(state: MentalHealthState) -> MentalHealthState:
     # Call LLM
     try:
         messages = [
-            SystemMessage(content=(
-                "You are a compassionate crisis support assistant. "
-                "Your ONLY goal is to keep the person safe and connect them with professional help. "
-                "You will NEVER provide information about methods of self-harm. "
-                "Tone: calm, caring, present, non-judgmental."
-            )),
+            SystemMessage(content=CRISIS_ESCALATION_AGENT_SYSTEM_PROMPT),
             HumanMessage(content=prompt),
         ]
         response = llm.invoke(messages)

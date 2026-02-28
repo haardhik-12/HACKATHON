@@ -15,6 +15,7 @@ from langchain_core.messages import SystemMessage, HumanMessage
 from app.state import MentalHealthState
 from utils.llm_factory import get_llm
 from utils.prompt_templates import DISTRESS_ANALYSIS_PROMPT
+from prompts import DISTRESS_ANALYSIS_AGENT_SYSTEM_PROMPT
 from memory.session_memory import record_emotion
 
 
@@ -101,7 +102,7 @@ def distress_analysis_agent(state: MentalHealthState) -> MentalHealthState:
     # Call LLM
     try:
         messages = [
-            SystemMessage(content="You are a mental health distress analysis assistant. Always respond with valid JSON only."),
+            SystemMessage(content=DISTRESS_ANALYSIS_AGENT_SYSTEM_PROMPT),
             HumanMessage(content=prompt),
         ]
         response = llm.invoke(messages)

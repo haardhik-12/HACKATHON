@@ -16,6 +16,7 @@ from app.state import MentalHealthState
 from app.config import config
 from utils.llm_factory import get_llm
 from utils.prompt_templates import SUPPORT_STRATEGY_PROMPT
+from prompts import SUPPORT_STRATEGY_AGENT_SYSTEM_PROMPT
 from utils.safety_filter import sanitize_response
 
 
@@ -80,11 +81,7 @@ def support_strategy_agent(state: MentalHealthState) -> MentalHealthState:
     # Call LLM
     try:
         messages = [
-            SystemMessage(content=(
-                "You are a compassionate mental wellness support assistant. "
-                "You provide coping tools and emotional support only. "
-                "You never diagnose, prescribe, or provide medical advice."
-            )),
+            SystemMessage(content=SUPPORT_STRATEGY_AGENT_SYSTEM_PROMPT),
             HumanMessage(content=prompt),
         ]
         response = llm.invoke(messages)
