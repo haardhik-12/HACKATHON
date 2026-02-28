@@ -21,6 +21,7 @@ from agents.distress_analysis_agent import distress_analysis_agent
 from agents.support_strategy_agent import support_strategy_agent
 from agents.crisis_escalation_agent import crisis_escalation_agent
 from agents.general_conversation_agent import general_conversation_agent
+from agents.retrieval_agent import retrieval_agent
 from agents.response_generator_agent import response_generator_agent
 
 
@@ -70,6 +71,7 @@ def build_graph() -> StateGraph:
     graph.add_node("conversation_agent", conversation_agent)
     graph.add_node("distress_analysis_agent", distress_analysis_agent)
     graph.add_node("general_conversation_agent", general_conversation_agent)
+    graph.add_node("retrieval_agent", retrieval_agent)
     graph.add_node("support_strategy_agent", support_strategy_agent)
     graph.add_node("crisis_escalation_agent", crisis_escalation_agent)
     graph.add_node("response_generator_agent", response_generator_agent)
@@ -88,10 +90,13 @@ def build_graph() -> StateGraph:
         risk_router,
         {
             "crisis": "crisis_escalation_agent",
-            "support": "support_strategy_agent",
+            "support": "retrieval_agent",
             "normal_chat": "general_conversation_agent",
         }
     )
+
+    # Route retrieval_agent to support_strategy_agent
+    graph.add_edge("retrieval_agent", "support_strategy_agent")
 
     # All paths converge at response_generator_agent
     graph.add_edge("crisis_escalation_agent", "response_generator_agent")
@@ -107,7 +112,8 @@ def build_graph() -> StateGraph:
     print("[GraphBuilder] ✅ LangGraph compiled successfully.")
     print("[GraphBuilder] Flow: START → conversation → distress_analysis → [risk_router]")
     print("[GraphBuilder]         ├── crisis → crisis_escalation → response_generator → END")
-    print("[GraphBuilder]         └── support → support_strategy  → response_generator → END")
+    print("[GraphBuilder]         ├── normal_chat → general_conversation → response_generator → END")
+    print("[GraphBuilder]         └── support → retrieval → support_strategy → response_generator → END")
 
     return compiled
 

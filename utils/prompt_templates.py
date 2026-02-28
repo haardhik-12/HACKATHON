@@ -55,6 +55,9 @@ USER'S EMOTIONAL STATE:
 - Risk: {risk_level}
 - Message: "{user_message}"
 
+CLINICAL CONTEXT (RAG):
+{retrieved_context}
+
 AVAILABLE TOOLS:
 {support_tools_summary}
 

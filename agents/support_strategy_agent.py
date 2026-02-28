@@ -70,12 +70,13 @@ def support_strategy_agent(state: MentalHealthState) -> MentalHealthState:
 
     llm = get_llm(temperature=0.6)  # Higher temp for more natural, varied responses
 
-    # Build prompt with current emotional context
+    # Build prompt with current emotional context and RAG context
     prompt = SUPPORT_STRATEGY_PROMPT.format(
         emotion=state.get("emotion", "neutral"),
         risk_level=state.get("risk_level", "low"),
         user_message=state.get("user_message", ""),
         support_tools_summary=tools_summary,
+        retrieved_context=state.get("retrieved_context", "No specific clinical context found.")
     )
 
     # Call LLM

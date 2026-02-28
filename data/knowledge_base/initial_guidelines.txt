@@ -1,0 +1,24 @@
+# Mental Health Clinical Guidelines & Support Summary
+
+## NICE Guidelines (CG123) Summary
+The NICE guidelines (CG123) provide a stepped-care model for managing common mental health disorders like depression and anxiety. 
+- **Step 1**: Identification, assessment, and psychoeducation.
+- **Step 2**: Low-intensity interventions (e.g., self-help, group-based CBT).
+- **Step 3**: High-intensity interventions (e.g., individual CBT, IPT).
+The focus is on early identification and providing the least intrusive yet effective intervention first.
+
+## Cognitive Behavioral Therapy (CBT) Core Skills
+CBT focus includes cognitive restructuring and behavioral activation.
+- **Cognitive Restructuring**: Identifying and challenging automatic negative thoughts (ANTs).
+- **Behavioral Activation**: Increasing engagement in positive, mood-lifting activities.
+- **Thought Records**: Systematically recording situations, feelings, and thoughts to find balanced alternatives.
+
+## Dialectical Behavior Therapy (DBT) Skills
+DBT provides specific skills for emotional intensity:
+- **Mindfulness**: Being fully present in the moment without judgment.
+- **Distress Tolerance**: Getting through a crisis without making it worse (e.g., TIP skills, self-soothing).
+- **Emotion Regulation**: Reducing vulnerability to "emotion mind" and increasing positive emotional experiences.
+- **Interpersonal Effectiveness**: Asking for what you need and saying no while maintaining self-respect and relationships.
+
+## Emotional Well-being
+Emotional well-being is defined as a positive state characterized by resilience, self-acceptance, and the ability to manage life's stresses effectively. Interventions include positive psychology exercises and stress reduction techniques.
