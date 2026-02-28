@@ -20,6 +20,7 @@ from agents.conversation_agent import conversation_agent
 from agents.distress_analysis_agent import distress_analysis_agent
 from agents.support_strategy_agent import support_strategy_agent
 from agents.crisis_escalation_agent import crisis_escalation_agent
+from agents.general_conversation_agent import general_conversation_agent
 from agents.response_generator_agent import response_generator_agent
 
 
@@ -38,12 +39,18 @@ def risk_router(state: MentalHealthState) -> str:
       "support" — for risk_level == "low" or "moderate"
     """
     risk_level = state.get("risk_level", "low").lower()
+    emotion = state.get("emotion", "neutral").lower()
 
     if risk_level in ("high", "critical"):
         print(f"[RiskRouter] ⚠️  Routing to CRISIS AGENT (risk_level={risk_level})")
         return "crisis"
 
-    print(f"[RiskRouter] ✅ Routing to SUPPORT AGENT (risk_level={risk_level})")
+    # If risk is low AND emotion is neutral, route to general chat
+    if risk_level == "low" and emotion == "neutral":
+        print(f"[RiskRouter] 👋 Routing to GENERAL CONVERSATION (emotion=neutral)")
+        return "normal_chat"
+
+    print(f"[RiskRouter] ✅ Routing to SUPPORT AGENT (risk_level={risk_level}, emotion={emotion})")
     return "support"
 
 
@@ -62,6 +69,7 @@ def build_graph() -> StateGraph:
     # ── Add agent nodes ───────────────────────────────────────────────────────
     graph.add_node("conversation_agent", conversation_agent)
     graph.add_node("distress_analysis_agent", distress_analysis_agent)
+    graph.add_node("general_conversation_agent", general_conversation_agent)
     graph.add_node("support_strategy_agent", support_strategy_agent)
     graph.add_node("crisis_escalation_agent", crisis_escalation_agent)
     graph.add_node("response_generator_agent", response_generator_agent)
@@ -81,12 +89,14 @@ def build_graph() -> StateGraph:
         {
             "crisis": "crisis_escalation_agent",
             "support": "support_strategy_agent",
+            "normal_chat": "general_conversation_agent",
         }
     )
 
-    # Both paths converge at response_generator_agent
+    # All paths converge at response_generator_agent
     graph.add_edge("crisis_escalation_agent", "response_generator_agent")
     graph.add_edge("support_strategy_agent", "response_generator_agent")
+    graph.add_edge("general_conversation_agent", "response_generator_agent")
 
     # Final node → END
     graph.add_edge("response_generator_agent", END)

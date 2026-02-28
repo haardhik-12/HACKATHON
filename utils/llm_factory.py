@@ -32,20 +32,27 @@ class MockLLM(BaseChatModel):
         return "mock"
 
     def _generate(self, messages: List[BaseMessage], stop: Optional[List[str]] = None, **kwargs: Any) -> ChatResult:
-        combined = " ".join(m.content for m in messages if hasattr(m, "content")).lower()
+        # Separate context (System) from actual user input (Human)
+        # To avoid false positives from instructions in the prompt template
+        context = " ".join(m.content for m in messages if isinstance(m, SystemMessage)).lower()
+        user_input = " ".join(m.content for m in messages if isinstance(m, HumanMessage)).lower()
+        
+        combined = (context + " " + user_input).lower()
 
         # Route based on context clues in the prompt
-        if '"emotion"' in combined and '"risk_level"' in combined:
-            # Distress analysis context — detect risk from keywords
-            response_text = self._mock_distress_analysis(combined)
-        elif "crisis" in combined and ("hotline" in combined or "resources" in combined or "emergency" in combined):
+        if '"emotion"' in context and '"risk_level"' in context:
+            # Distress analysis context — detect risk from keywords ONLY in user input
+            response_text = self._mock_distress_analysis(user_input)
+        elif "crisis" in context and ("hotline" in context or "resources" in context):
             response_text = self._mock_crisis_response()
-        elif "coping" in combined or "support tool" in combined or "grounding" in combined or "breathing" in combined:
-            response_text = self._mock_support_response(combined)
-        elif "disclaimer" in combined or "format" in combined or "routing path" in combined:
+        elif "general conversation" in context or "small talk" in context:
+            response_text = self._mock_generic_response(user_input)
+        elif "coping" in context or "support tool" in context:
+            response_text = self._mock_support_response(user_input)
+        elif "disclaimer" in context or "format" in context:
             response_text = self._mock_format_response(combined)
         else:
-            response_text = self._mock_generic_response()
+            response_text = self._mock_generic_response(user_input)
 
         generation = ChatGeneration(message=AIMessage(content=response_text))
         return ChatResult(generations=[generation])
@@ -142,8 +149,12 @@ class MockLLM(BaseChatModel):
                 return core[:1500]  # Return trimmed version
         return "I'm here with you. Please take a moment to breathe."
 
-    def _mock_generic_response(self) -> str:
-        return "I'm here to support you. Could you tell me a bit more about how you're feeling?"
+    def _mock_generic_response(self, user_input: str = "") -> str:
+        if "said" in user_input or "iam" in user_input:
+            name_match = re.search(r"(?:iam|i am|my name is|i'm)\s+([a-zA-Z]+)", user_input.replace('.', ''))
+            name = name_match.group(1).capitalize() if name_match else "there"
+            return f"Hi {name}! It's nice to meet you. How are you doing today?"
+        return "Hi there! How are you doing today? I'm here if you want to talk."
 
     async def _agenerate(self, messages: List[BaseMessage], stop: Optional[List[str]] = None, **kwargs: Any) -> ChatResult:
         return self._generate(messages, stop, **kwargs)

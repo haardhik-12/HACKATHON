@@ -48,6 +48,7 @@ class MentalHealthState(TypedDict):
     # ── Support agent output ─────────────────────────────────────────────────
     selected_tools: List[str]               # Tool IDs selected from support_library.json
     support_response: str                   # Formatted support message
+    general_response: str                   # Formatted general/conversational response
 
     # ── Crisis agent output ──────────────────────────────────────────────────
     crisis_response: str                    # Crisis escalation message with hotlines

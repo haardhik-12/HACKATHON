@@ -31,6 +31,8 @@ def response_generator_agent(state: MentalHealthState) -> MentalHealthState:
     # ── Select the raw response from the appropriate preceding agent ──────────
     if routing_path == "crisis":
         agent_response = state.get("crisis_response", "")
+    elif routing_path == "normal_chat":
+        agent_response = state.get("general_response", "")
     else:
         agent_response = state.get("support_response", "")
 
