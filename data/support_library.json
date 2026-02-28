@@ -1,0 +1,234 @@
+{
+    "version": "1.0",
+    "disclaimer": "These tools provide general emotional wellness support and are not medical treatments.",
+    "tools": {
+        "grounding": {
+            "name": "Grounding Techniques",
+            "description": "Evidence-based sensory exercises to anchor you in the present moment, reducing anxiety and dissociation.",
+            "best_for": [
+                "anxiety",
+                "panic",
+                "dissociation",
+                "overwhelm"
+            ],
+            "exercises": [
+                {
+                    "id": "grounding_54321",
+                    "name": "5-4-3-2-1 Sensory Grounding",
+                    "duration": "3-5 minutes",
+                    "steps": [
+                        "Notice 5 things you can SEE around you right now.",
+                        "Notice 4 things you can TOUCH — feel their texture.",
+                        "Notice 3 things you can HEAR in your environment.",
+                        "Notice 2 things you can SMELL (or two scents you like).",
+                        "Notice 1 thing you can TASTE."
+                    ],
+                    "tip": "Speak each item aloud if you can — the act of naming helps ground you further."
+                },
+                {
+                    "id": "grounding_safe_place",
+                    "name": "Safe Place Visualization",
+                    "duration": "5 minutes",
+                    "steps": [
+                        "Close your eyes and take three slow breaths.",
+                        "Picture a place — real or imagined — where you feel completely safe and at peace.",
+                        "Notice details: colors, sounds, the temperature of the air.",
+                        "Allow yourself to stay there for a few moments.",
+                        "Slowly return to the room, carrying that sense of calm."
+                    ],
+                    "tip": "You can return to this place any time you feel unsafe or overwhelmed."
+                }
+            ]
+        },
+        "breathing": {
+            "name": "Breathing Exercises",
+            "description": "Controlled breathing activates the parasympathetic nervous system, reducing physiological stress response.",
+            "best_for": [
+                "anxiety",
+                "stress",
+                "panic",
+                "anger"
+            ],
+            "exercises": [
+                {
+                    "id": "breathing_box",
+                    "name": "Box Breathing (4-4-4-4)",
+                    "duration": "4-5 minutes",
+                    "steps": [
+                        "Breathe IN slowly for 4 counts.",
+                        "HOLD your breath for 4 counts.",
+                        "Breathe OUT slowly for 4 counts.",
+                        "HOLD again for 4 counts.",
+                        "Repeat 4–6 times."
+                    ],
+                    "tip": "Used by Navy SEALs and athletes to achieve calm focus under pressure."
+                },
+                {
+                    "id": "breathing_478",
+                    "name": "4-7-8 Calming Breath",
+                    "duration": "3-4 minutes",
+                    "steps": [
+                        "Exhale completely through your mouth.",
+                        "Close your mouth and inhale quietly through your nose for 4 counts.",
+                        "Hold your breath for 7 counts.",
+                        "Exhale completely through your mouth for 8 counts.",
+                        "Repeat this cycle 3–4 times."
+                    ],
+                    "tip": "Works especially well before sleep or when anxiety spikes suddenly."
+                },
+                {
+                    "id": "breathing_diaphragmatic",
+                    "name": "Diaphragmatic (Belly) Breathing",
+                    "duration": "5 minutes",
+                    "steps": [
+                        "Place one hand on your chest, one on your belly.",
+                        "Breathe in through your nose — your belly should rise, chest stays still.",
+                        "Exhale through pursed lips, belly falls.",
+                        "Repeat slowly for 5–10 breaths."
+                    ],
+                    "tip": "This is the body's natural calming breath. Practice daily for lasting results."
+                }
+            ]
+        },
+        "cbt_reframing": {
+            "name": "CBT-Style Cognitive Reframing",
+            "description": "Cognitive Behavioral Therapy-inspired exercises to identify and gently challenge unhelpful thought patterns.",
+            "best_for": [
+                "sadness",
+                "hopelessness",
+                "self-criticism",
+                "catastrophizing"
+            ],
+            "disclaimer": "These are self-help tools, not therapy. A licensed therapist provides personalized CBT treatment.",
+            "exercises": [
+                {
+                    "id": "cbt_thought_record",
+                    "name": "Thought Record",
+                    "duration": "10 minutes",
+                    "steps": [
+                        "Write down the situation triggering distress.",
+                        "Write the automatic thought: what did your mind say?",
+                        "Rate how strongly you believe it (0–100%).",
+                        "List evidence that SUPPORTS the thought.",
+                        "List evidence that CONTRADICTS the thought.",
+                        "Write a more balanced alternative thought.",
+                        "Rate how strongly you believe the original thought now."
+                    ],
+                    "tip": "Often, writing it out reveals thoughts are more extreme than reality supports."
+                },
+                {
+                    "id": "cbt_friend_test",
+                    "name": "The Friend Test",
+                    "duration": "5 minutes",
+                    "steps": [
+                        "Think about what you're being hard on yourself about.",
+                        "Imagine your closest friend was in the exact same situation.",
+                        "What would you say to them — with compassion?",
+                        "Now say exactly that to yourself."
+                    ],
+                    "tip": "We are often far kinder to others than to ourselves. You deserve that same compassion."
+                },
+                {
+                    "id": "cbt_decatastrophize",
+                    "name": "Decatastrophizing",
+                    "duration": "5 minutes",
+                    "steps": [
+                        "Identify the feared outcome: 'What am I afraid will happen?'",
+                        "Ask: How likely is this outcome, really? What is the evidence?",
+                        "Ask: If it does happen, what is the worst realistic outcome?",
+                        "Ask: Could I cope with that? What resources do I have?",
+                        "Ask: What is the BEST possible outcome? What is most LIKELY?"
+                    ],
+                    "tip": "Catastrophizing amplifies fear. Reality-testing shrinks it back to size."
+                }
+            ]
+        },
+        "journaling": {
+            "name": "Guided Journaling Prompts",
+            "description": "Structured writing exercises to process emotions, gain perspective, and build self-awareness.",
+            "best_for": [
+                "general distress",
+                "sadness",
+                "confusion",
+                "low mood"
+            ],
+            "exercises": [
+                {
+                    "id": "journal_emotion_dump",
+                    "name": "Emotion Dump",
+                    "duration": "10-15 minutes",
+                    "prompt": "Set a timer for 10 minutes. Write everything you're feeling right now — no filter, no judgment. No one will read this. Just let it out on the page."
+                },
+                {
+                    "id": "journal_gratitude",
+                    "name": "Three Good Things",
+                    "duration": "5 minutes",
+                    "prompt": "Write down three things that went okay today — they don't have to be big. One sentence for each. What made each one happen?"
+                },
+                {
+                    "id": "journal_letter",
+                    "name": "Letter to Your Future Self",
+                    "duration": "10 minutes",
+                    "prompt": "Write a short letter to yourself 6 months from now. What do you hope has changed? What strength are you beginning to discover? Seal it (digitally or physically) and set a reminder to read it."
+                },
+                {
+                    "id": "journal_self_compassion",
+                    "name": "Self-Compassion Letter",
+                    "duration": "10 minutes",
+                    "prompt": "Think of a situation causing you suffering. Write a letter to yourself from the perspective of a deeply compassionate friend — one who knows your struggles and wishes only kindness for you."
+                }
+            ]
+        },
+        "stress_management": {
+            "name": "Stress Management Techniques",
+            "description": "Practical, evidence-backed techniques for managing acute and chronic stress.",
+            "best_for": [
+                "stress",
+                "burnout",
+                "overwhelm",
+                "tension"
+            ],
+            "exercises": [
+                {
+                    "id": "stress_pmr",
+                    "name": "Progressive Muscle Relaxation (PMR)",
+                    "duration": "15 minutes",
+                    "steps": [
+                        "Find a comfortable seated or lying position.",
+                        "Starting with your feet: tense the muscles tightly for 5 seconds.",
+                        "Release suddenly and feel the relaxation spread for 30 seconds.",
+                        "Move up: calves → thighs → abdomen → hands → arms → shoulders → face.",
+                        "After completing the sequence, breathe slowly and enjoy the calm."
+                    ],
+                    "tip": "PMR has strong clinical evidence for reducing anxiety and improving sleep."
+                },
+                {
+                    "id": "stress_walk",
+                    "name": "Mindful Walk",
+                    "duration": "10-20 minutes",
+                    "steps": [
+                        "Step outside (even just around the block).",
+                        "Leave your phone in your pocket.",
+                        "Focus entirely on your senses as you walk.",
+                        "Notice the ground under each step, the air on your skin, sounds around you.",
+                        "If your mind wanders, gently return attention to your steps."
+                    ],
+                    "tip": "Physical movement + fresh air + mindfulness is a powerful stress-relief combination."
+                },
+                {
+                    "id": "stress_time_box",
+                    "name": "Worry Time (Time-Boxing Anxiety)",
+                    "duration": "Scheduled daily",
+                    "steps": [
+                        "Set a specific 15-minute 'worry time' each day (e.g., 5pm).",
+                        "When anxious thoughts arise earlier, note them briefly and tell yourself: 'I'll address this at worry time.'",
+                        "During worry time, freely think through your concerns.",
+                        "When the timer ends, consciously close the session.",
+                        "Gradually, your brain learns that worrying has a container."
+                    ],
+                    "tip": "This technique separates worry from other parts of your day, reducing its overall grip."
+                }
+            ]
+        }
+    }
+}

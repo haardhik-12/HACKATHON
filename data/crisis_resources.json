@@ -1,0 +1,138 @@
+{
+  "version": "1.0",
+  "disclaimer": "These resources are provided for immediate crisis support. Always contact local emergency services (call 911, 999, 112, etc.) if there is immediate danger.",
+  "resources": {
+    "US": {
+      "country_name": "United States",
+      "emergency": "911",
+      "hotlines": [
+        {
+          "name": "988 Suicide & Crisis Lifeline",
+          "phone": "988",
+          "details": "Call or text 988 — available 24/7",
+          "chat": "https://988lifeline.org/chat/"
+        },
+        {
+          "name": "Crisis Text Line",
+          "phone": null,
+          "details": "Text HOME to 741741 — available 24/7",
+          "chat": "https://www.crisistextline.org/"
+        },
+        {
+          "name": "SAMHSA Helpline",
+          "phone": "1-800-662-4357",
+          "details": "Free, confidential, 24/7 — mental health & substance use",
+          "chat": null
+        }
+      ]
+    },
+    "UK": {
+      "country_name": "United Kingdom",
+      "emergency": "999",
+      "hotlines": [
+        {
+          "name": "Samaritans",
+          "phone": "116 123",
+          "details": "Free, 24/7 — call or email jo@samaritans.org",
+          "chat": "https://www.samaritans.org/"
+        },
+        {
+          "name": "PAPYRUS HOPELINEUK (under 35)",
+          "phone": "0800 068 4141",
+          "details": "Call, text or email — available 9am-midnight",
+          "chat": "https://www.papyrus-uk.org/"
+        },
+        {
+          "name": "Shout Crisis Text Line",
+          "phone": null,
+          "details": "Text SHOUT to 85258 — available 24/7",
+          "chat": "https://giveusashout.org/"
+        }
+      ]
+    },
+    "IN": {
+      "country_name": "India",
+      "emergency": "112",
+      "hotlines": [
+        {
+          "name": "iCall (TISS)",
+          "phone": "9152987821",
+          "details": "Mon–Sat, 8am–10pm",
+          "chat": "https://icallhelpline.org/"
+        },
+        {
+          "name": "Vandrevala Foundation",
+          "phone": "1860-2662-345",
+          "details": "Free, 24/7 helpline for mental health",
+          "chat": "https://www.vandrevalafoundation.com/"
+        },
+        {
+          "name": "iSPOOT",
+          "phone": "904599900",
+          "details": "Suicide prevention, Mon–Sat 8am–10pm",
+          "chat": null
+        }
+      ]
+    },
+    "AU": {
+      "country_name": "Australia",
+      "emergency": "000",
+      "hotlines": [
+        {
+          "name": "Lifeline Australia",
+          "phone": "13 11 14",
+          "details": "24/7 crisis support",
+          "chat": "https://www.lifeline.org.au/crisis-chat/"
+        },
+        {
+          "name": "BeyondBlue",
+          "phone": "1300 22 4636",
+          "details": "24/7 mental health support",
+          "chat": "https://www.beyondblue.org.au/"
+        },
+        {
+          "name": "Kids Helpline (under 25)",
+          "phone": "1800 55 1800",
+          "details": "24/7 — phone and online counselling",
+          "chat": "https://kidshelpline.com.au/"
+        }
+      ]
+    },
+    "CA": {
+      "country_name": "Canada",
+      "emergency": "911",
+      "hotlines": [
+        {
+          "name": "Canada Suicide Prevention Service",
+          "phone": "1-833-456-4566",
+          "details": "24/7 crisis support",
+          "chat": "https://www.crisisservicescanada.ca/"
+        },
+        {
+          "name": "Kids Help Phone",
+          "phone": "1-800-668-6868",
+          "details": "Text CONNECT to 686868 — 24/7",
+          "chat": "https://kidshelpphone.ca/"
+        }
+      ]
+    },
+    "GLOBAL": {
+      "country_name": "Global / Other",
+      "emergency": "Your local emergency number (112 in many countries)",
+      "hotlines": [
+        {
+          "name": "International Association for Suicide Prevention",
+          "phone": null,
+          "details": "Find a crisis centre near you",
+          "chat": "https://www.iasp.info/resources/Crisis_Centres/"
+        },
+        {
+          "name": "Befrienders Worldwide",
+          "phone": null,
+          "details": "Global network of crisis volunteers",
+          "chat": "https://www.befrienders.org/"
+        }
+      ]
+    }
+  }
+}
